@@ -72,6 +72,14 @@ def('ht.ui.Rate', ht.ui.View, {
         this.setValue(value);
     },
 
+    setAllowHalf: function(allowHalf) {
+        var oldValue = this.__allowHalf;
+        this.__allowHalf = allowHalf;
+        // 派发属性变化事件
+        this.firePropertyChange('allowHalf', oldValue, allowHalf);
+        this.setValue(Math.floor(this.getValue()));
+    },
+
     validateImpl: function(x, y, width, height) {
         var self = this;
         self.iconRects = [];
@@ -87,10 +95,9 @@ def('ht.ui.Rate', ht.ui.View, {
             iconHeight = self.getIconHeight(),
             gap = self.getIconGap(),
 
-            value = self.getValue(),
             hoverValue = self.getHoverValue(),
+            value = hoverValue || self.getValue(),
             max = self.getMax(),
-            readOnly = self.isReadOnly(),
             allowHalf = self.isAllowHalf();
 
         for(var i = 0; i < max; i++) {
@@ -100,69 +107,44 @@ def('ht.ui.Rate', ht.ui.View, {
             self.iconRects.push({
                 rect: { x: gx - self.getPaddingLeft() - self.getBorderLeft(), y: gy - self.getPaddingTop() - self.getBorderTop(), width: i === (max - 1) ? iconWidth : iconWidth + gap, height: iconHeight }
             });
-
+            
             g.beginPath();
             
             var color = (typeof(colors) === 'string') ? colors : colors[i],
                 uncheckedColor = (typeof(uncheckedColors) === 'string') ? uncheckedColors : uncheckedColors[i],
-                icon = (typeof(icons) === 'string') ? icons : icons[i % icons.length],
-                uncheckedIcon = (typeof(uncheckedIcons) === 'string') ? uncheckedIcons : uncheckedIcons[i % uncheckedIcons.length];
+                icon = ht.Default.isArray(icons) ? icons[i % icons.length] : icons,
+                uncheckedIcon = ht.Default.isArray(uncheckedIcons) ? uncheckedIcons[i % uncheckedIcons.length] : uncheckedIcons;
 
-            var iconDrawable = new ht.ui.drawable.ImageDrawable(icon),
-                uncheckedIconDrawable = new ht.ui.drawable.ImageDrawable(uncheckedIcon);
+            var iconDrawable = icon instanceof ht.ui.drawable.ImageDrawable ? icon : new ht.ui.drawable.ImageDrawable(icon),
+                uncheckedIconDrawable = uncheckedIcon instanceof ht.ui.drawable.ImageDrawable ? uncheckedIcon : new ht.ui.drawable.ImageDrawable(uncheckedIcon);
                 
             if (icon === self.__icons) iconDrawable.setColorTint(color);
             if (uncheckedIcon === self.__uncheckedIcons) uncheckedIconDrawable.setColorTint(uncheckedColor);
             
             var drawable = null;
-            if (readOnly) {
-                if (i < Math.floor(value)) {
-                    drawable = iconDrawable;
-                }
-                else if (i > Math.floor(value))  {
-                    drawable = uncheckedIconDrawable;
-                }
-                else {
-                    if (allowHalf) {
-                        var percentage = value - Math.floor(value);
-                        g.save();
-                        g.rect(gx, gy, iconWidth * percentage, iconHeight);
-                        g.clip();
-                        iconDrawable.draw(gx, gy, iconWidth, iconHeight, null, self);
-                        g.restore();
-    
-                        g.beginPath();
-                        g.save();
-                        g.rect(gx + iconWidth * percentage, gy, width * (1 - percentage), iconHeight);
-                        g.clip();  
-                        uncheckedIconDrawable.draw(gx, gy, iconWidth, iconHeight, null, self);
-                        g.restore();
-                    }
-                    else {
-                        drawable = uncheckedIconDrawable;
-                    }
-                }
+            if (i < Math.floor(value)) {
+                drawable = iconDrawable;
             }
-            else { 
-                if (hoverValue) {
-                    if (i < hoverValue) {
-                        drawable = iconDrawable;
-                    } 
-                    else {
-                        drawable = uncheckedIconDrawable;
-                    } 
-                }
-                else if (value > 0) {
-                    if (i < Math.floor(value)) {
-                        drawable = iconDrawable;
-                    }
-                    else {
-                        drawable = uncheckedIconDrawable;
-                    } 
-                }
-                else {
-                    drawable = uncheckedIconDrawable;
-                }
+            else if (i > Math.floor(value))  {
+                drawable = uncheckedIconDrawable;
+            }
+            else if (allowHalf) {
+                var percentage = value - Math.floor(value);
+                g.save();
+                g.rect(gx, gy, iconWidth * percentage, iconHeight);
+                g.clip();
+                iconDrawable.draw(gx, gy, iconWidth, iconHeight, null, self);
+                g.restore();
+
+                g.beginPath();
+                g.save();
+                g.rect(gx + iconWidth * percentage, gy, width * (1 - percentage), iconHeight);
+                g.clip();  
+                uncheckedIconDrawable.draw(gx, gy, iconWidth, iconHeight, null, self);
+                g.restore();
+            }
+            else {
+                drawable = uncheckedIconDrawable;
             }
             drawable && drawable.draw(gx, gy, iconWidth, iconHeight, null, self);
         }

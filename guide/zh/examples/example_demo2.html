@@ -22,8 +22,8 @@
             rate.setBorder(new ht.ui.border.LineBorder(1, ht.ui.uiTheme.baseColor));
             rate.setPadding(10);
 
-            rate.setUncheckedIcons('../../../img/柯基.json');
-            rate.setIcons('../../../img/哈士奇.json');
+            rate.setUncheckedIcons(new ht.ui.drawable.ImageDrawable('../../../img/柯基.json'));
+            rate.setIcons(new ht.ui.drawable.ImageDrawable('../../../img/哈士奇.json'));
 
             var preferredSize = rate.getPreferredSize();
             rate.addToDOM(window, {x: 10, y: 10, width: preferredSize.width, height: preferredSize.height});

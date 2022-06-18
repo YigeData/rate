@@ -14,15 +14,24 @@ def(ui.RateInteractor, ui.Interactor, {
 
         Default.preventDefault(e);
         var rate = self.getComponent(),
+            gap = rate.getIconGap(),
+            allowHalf = rate.isAllowHalf(),
             iconRects = rate.iconRects,
             lp = rate.lp(e),
             readOnly = rate.isReadOnly();
 
         var hoverValue = 0;
         for(var i = 0, len = iconRects.length; i < len; i++) {
-            if (Default.containsPoint(iconRects[i].rect, lp) && !readOnly) {
+            var rect = iconRects[i].rect;
+            if (!readOnly && Default.containsPoint(rect, lp)) {
                 rate.setCursor('pointer');
-                hoverValue = i + 1;
+                if(allowHalf && Default.containsPoint({
+                    x: rect.x,
+                    y: rect.y,
+                    width: (rect.width - gap) / 2,
+                    height: rect.height
+                }, lp)) hoverValue = i + 0.5;
+                else hoverValue = i + 1;
                 break;
             }
             else {
@@ -43,13 +52,22 @@ def(ui.RateInteractor, ui.Interactor, {
         Default.preventDefault(e);
         if (ht.Default.isLeftButton(e)) {
             var rate = self.getComponent(),
+                gap = rate.getIconGap(),
+                allowHalf = rate.isAllowHalf(),
                 iconRects = rate.iconRects,
                 lp = rate.lp(e),
                 readOnly = rate.isReadOnly();
 
             for(var i = 0, len = iconRects.length; i < len; i++) {
-                if (Default.containsPoint(iconRects[i].rect, lp) && !readOnly) {
-                    rate.setValue(i + 1);
+                var rect = iconRects[i].rect;
+                if (!readOnly && Default.containsPoint(rect, lp)) {
+                    if(allowHalf && Default.containsPoint({
+                        x: rect.x,
+                        y: rect.y,
+                        width: (rect.width - gap) / 2,
+                        height: rect.height
+                    }, lp)) rate.setValue(i + 0.5);
+                    else rate.setValue(i + 1);;
                     break;
                 }
             }
