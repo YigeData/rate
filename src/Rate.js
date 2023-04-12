@@ -115,7 +115,9 @@ def('ht.ui.Rate', ht.ui.View, {
                     height: iconHeight
                 };
             
-            self.iconRects.push({rect});
+            self.iconRects.push({
+                'rect': rect
+            });
             
             g.beginPath();
             
