@@ -7,13 +7,19 @@ module.exports = function (grunt) {
         srcDir: '<%= rootDir %>/src',
         buildDir: '<%= rootDir %>/build',
         libDir: '<%= rootDir %>/lib',
-        guideDir: '<%= rootDir %>/guide'
+        guideDir: '<%= rootDir %>/guide',
+        watch: {
+            js: {
+                files: ['src/*.js'],
+                tasks: ['concat:plugin']
+            }
+        }
     });
 
     loadTasks(grunt);
     loadNpmTasks(grunt);
 
-    grunt.registerTask('default', ['concat:plugin']);
+    grunt.registerTask('default', ['concat:plugin', 'watch']);
 
     grunt.registerTask('release', [
         'clean',
