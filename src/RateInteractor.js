@@ -28,7 +28,7 @@ def(ui.RateInteractor, ui.Interactor, {
                 if(allowHalf && Default.containsPoint({
                     x: rect.x,
                     y: rect.y,
-                    width: (rect.width - gap) / 2,
+                    width: i === len - 1 ? rect.width / 2 : (rect.width - gap) / 2,
                     height: rect.height
                 }, lp)) hoverValue = i + 0.5;
                 else hoverValue = i + 1;
@@ -56,18 +56,29 @@ def(ui.RateInteractor, ui.Interactor, {
                 allowHalf = rate.isAllowHalf(),
                 iconRects = rate.iconRects,
                 lp = rate.lp(e),
-                readOnly = rate.isReadOnly();
+                readOnly = rate.isReadOnly(),
+                clearable = rate.isClearable(),
+                oldValue = rate.getValue();
 
             for(var i = 0, len = iconRects.length; i < len; i++) {
                 var rect = iconRects[i].rect;
+                var value;
                 if (!readOnly && Default.containsPoint(rect, lp)) {
                     if(allowHalf && Default.containsPoint({
                         x: rect.x,
                         y: rect.y,
-                        width: (rect.width - gap) / 2,
+                        width: i === len - 1 ? rect.width / 2 : (rect.width - gap) / 2,
                         height: rect.height
-                    }, lp)) rate.setValue(i + 0.5);
-                    else rate.setValue(i + 1);;
+                    }, lp)) {
+                        value = i + 0.5;
+                    }
+                    else value = i + 1;
+
+                    if (clearable && value === oldValue) {
+                        rate.setHoverValue(0);
+                        rate.setValue(0);
+                    }
+                    else rate.setValue(value);
                     break;
                 }
             }

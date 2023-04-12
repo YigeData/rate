@@ -7,18 +7,20 @@ ui.Rate = function () {
 
 def('ht.ui.Rate', ht.ui.View, {
 
-    ui_ac: ['max', 'is:readOnly', 'is:allowHalf', 'colors', 'uncheckedColors', 'icons', 'uncheckedIcons', 'iconWidth', 'iconHeight', 'iconGap'],
+    ui_ac: ['max', 'is:readOnly', 'is:allowHalf', 'colors', 'uncheckedColors', 'icons', 'uncheckedIcons', 'iconWidth', 'iconHeight', 'iconGap', 'is:clearable'],
 
-    __max: 5,                                             // 分数最大值
+    __max: 6,                                             // 分数最大值
     __readOnly: false,                                    // 设置只读
     __allowHalf: true,                                    // 设置只读时是否允许半星
-    __colors: '#F7BA2A',                                  // 默认星形图标被选中的颜色
-    __uncheckedColors: '#cccccc',                         // 默认星形图标未被选中的颜色
+    __colors: '#FFAD2B',                                  // 默认星形图标被选中的颜色
+    __uncheckedColors: '#E9E9EB',                         // 默认星形图标未被选中的颜色
     __icons: 'rate_star',                                 // 鼠标选中时的图标
     __uncheckedIcons: 'rate_star',                        // 鼠标未选中时的图标
-    __iconWidth: 20,                                      // 图标宽度
-    __iconHeight: 20,                                     // 图标高度
-    __iconGap: 5,                                         // 图标间距
+    __iconWidth: 18,                                      // 图标宽度
+    __iconHeight: 18,                                     // 图标高度
+    __iconGap: 6,                                         // 图标间距
+    __padding: [8,4,8,4],
+    __clearable: false,
 
     ms_ac: ['value', 'hoverValue', 'formDataName'],  
 
@@ -72,14 +74,6 @@ def('ht.ui.Rate', ht.ui.View, {
         this.setValue(value);
     },
 
-    setAllowHalf: function(allowHalf) {
-        var oldValue = this.__allowHalf;
-        this.__allowHalf = allowHalf;
-        // 派发属性变化事件
-        this.firePropertyChange('allowHalf', oldValue, allowHalf);
-        this.setValue(Math.floor(this.getValue()));
-    },
-
     validateImpl: function(x, y, width, height) {
         var self = this;
         self.iconRects = [];
@@ -97,16 +91,24 @@ def('ht.ui.Rate', ht.ui.View, {
 
             hoverValue = self.getHoverValue(),
             value = hoverValue || self.getValue(),
+            min = Math.floor(value),
             max = self.getMax(),
             allowHalf = self.isAllowHalf();
 
+        g.save();
+        g.translate(x, y);
+
         for(var i = 0; i < max; i++) {
-            var gx = x + gap + i * (iconWidth + gap),
-                gy = y;
+            var gx = i * (gap + iconWidth),
+                gy = 0,
+                rect = {
+                    x: gx,
+                    y: gy,
+                    width: i === max - 1 ? iconWidth : iconWidth + gap,
+                    height: iconHeight
+                };
             
-            self.iconRects.push({
-                rect: { x: gx - self.getPaddingLeft() - self.getBorderLeft(), y: gy - self.getPaddingTop() - self.getBorderTop(), width: i === (max - 1) ? iconWidth : iconWidth + gap, height: iconHeight }
-            });
+            self.iconRects.push({rect});
             
             g.beginPath();
             
@@ -115,21 +117,21 @@ def('ht.ui.Rate', ht.ui.View, {
                 icon = ht.Default.isArray(icons) ? icons[i % icons.length] : icons,
                 uncheckedIcon = ht.Default.isArray(uncheckedIcons) ? uncheckedIcons[i % uncheckedIcons.length] : uncheckedIcons;
 
-            var iconDrawable = icon instanceof ht.ui.drawable.ImageDrawable ? icon : new ht.ui.drawable.ImageDrawable(icon),
-                uncheckedIconDrawable = uncheckedIcon instanceof ht.ui.drawable.ImageDrawable ? uncheckedIcon : new ht.ui.drawable.ImageDrawable(uncheckedIcon);
+            var iconDrawable = icon instanceof ht.ui.drawable.ImageDrawable ? icon : new ht.ui.drawable.ImageDrawable(icon, 'uniform'),
+                uncheckedIconDrawable = uncheckedIcon instanceof ht.ui.drawable.ImageDrawable ? uncheckedIcon : new ht.ui.drawable.ImageDrawable(uncheckedIcon, 'uniform');
                 
             if (icon === self.__icons) iconDrawable.setColorTint(color);
             if (uncheckedIcon === self.__uncheckedIcons) uncheckedIconDrawable.setColorTint(uncheckedColor);
             
             var drawable = null;
-            if (i < Math.floor(value)) {
+            if (i < min) {
                 drawable = iconDrawable;
             }
-            else if (i > Math.floor(value))  {
+            else if (i > min)  {
                 drawable = uncheckedIconDrawable;
             }
             else if (allowHalf) {
-                var percentage = value - Math.floor(value);
+                var percentage = value - min;
                 g.save();
                 g.rect(gx, gy, iconWidth * percentage, iconHeight);
                 g.clip();
@@ -148,7 +150,10 @@ def('ht.ui.Rate', ht.ui.View, {
             }
             drawable && drawable.draw(gx, gy, iconWidth, iconHeight, null, self);
         }
+
+        g.restore();
     },
+
     getSerializableProperties:function() {
         var parentProperties = ht.ui.Rate.superClass.getSerializableProperties.call(this);
 
@@ -156,6 +161,7 @@ def('ht.ui.Rate', ht.ui.View, {
             max: true,
             'is:readOnly': true,
             'is:allowHalf': true,
+            'is:clearable': true,
             colors: true,
             uncheckedColors: true,
             icons: true,
@@ -163,7 +169,7 @@ def('ht.ui.Rate', ht.ui.View, {
             iconWidth: true,
             iconHeight:true,
             iconGap: true,
-            value:true,
+            value: true,
             hoverValue: true
         });
     }
