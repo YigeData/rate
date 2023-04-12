@@ -22,7 +22,7 @@ def('ht.ui.Rate', ht.ui.View, {
     __padding: [8,4,8,4],
     __clearable: false,
 
-    ms_ac: ['value', 'hoverValue', 'formDataName'],  
+    ms_ac: ['value', 'hoverValue', 'formDataName', 'version'],  
 
     _value: 0,                                            // 选中分值   
     _hoverValue: 0,                                       // 悬浮分值                                  
@@ -72,6 +72,13 @@ def('ht.ui.Rate', ht.ui.View, {
 
     setFormDataValue: function(value) {
         this.setValue(value);
+    },
+    
+    /**
+     * @override
+     */
+    getVersion: function() {
+        return '5.0';
     },
 
     validateImpl: function(x, y, width, height) {
