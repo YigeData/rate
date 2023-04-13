@@ -11,7 +11,7 @@ def('ht.ui.Rate', ht.ui.View, {
 
     __max: 6,                                             // 分数最大值
     __readOnly: false,                                    // 设置只读
-    __allowHalf: true,                                    // 设置只读时是否允许半星
+    __allowHalf: false,                                    // 设置只读时是否允许半星
     __colors: '#FFAD2B',                                  // 默认星形图标被选中的颜色
     __uncheckedColors: '#E9E9EB',                         // 默认星形图标未被选中的颜色
     __icons: 'rate_star',                                 // 鼠标选中时的图标
