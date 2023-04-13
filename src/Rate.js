@@ -100,7 +100,8 @@ def('ht.ui.Rate', ht.ui.View, {
             value = hoverValue || self.getValue(),
             min = Math.floor(value),
             max = self.getMax(),
-            allowHalf = self.isAllowHalf();
+            allowHalf = self.isAllowHalf(),
+            readOnly = self.isReadOnly();
 
         g.save();
         g.translate(x, y);
@@ -139,7 +140,7 @@ def('ht.ui.Rate', ht.ui.View, {
             else if (i > min)  {
                 drawable = uncheckedIconDrawable;
             }
-            else if (allowHalf) {
+            else if (readOnly || allowHalf) {
                 var percentage = value - min;
                 g.save();
                 g.rect(gx, gy, iconWidth * percentage, iconHeight);
