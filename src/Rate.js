@@ -9,7 +9,7 @@ def('ht.ui.Rate', ht.ui.View, {
 
     ui_ac: ['max', 'is:readOnly', 'is:allowHalf', 'colors', 'uncheckedColors', 'icons', 'uncheckedIcons', 'iconWidth', 'iconHeight', 'iconGap', 'is:clearable'],
 
-    __max: 6,                                             // 分数最大值
+    __max: 5,                                             // 分数最大值
     __readOnly: false,                                    // 设置只读
     __allowHalf: false,                                    // 设置只读时是否允许半星
     __colors: '#FFAD2B',                                  // 默认星形图标被选中的颜色
